@@ -9,7 +9,7 @@
 - Gemini API（生成AI）
 
 ## 動かし方
-1. `index.html` 内の `YOUR_API_KEY_HERE` を、ご自身の Gemini API キーに置き換えてください。
+1. `index.html` 内の `YOUR_API_KEY_HERE`(411行目) を、ご自身の Gemini API キーに置き換えてください。
 2. ブラウザ（または VS Code の Live Server）で `index.html` を開きます。
 3. 学びたい内容と使える時間を入力し、ボタンを押すと学習プランが表示されます。
 
