@@ -3,55 +3,548 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI学習プラン提案</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg1: #0f0c29;
+            --bg2: #302b63;
+            --bg3: #24243e;
+            --accent1: #7f5af0;
+            --accent2: #2cb67d;
+            --accent3: #00d4ff;
+            --text: #e4e4f0;
+            --muted: #a0a0b8;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0 16px;
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+            background-size: 200% 200%;
+            animation: bgShift 18s ease infinite;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 56px 16px;
+        }
+
+        @keyframes bgShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .app {
+            max-width: 560px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            margin: 0 0 10px;
+            background: linear-gradient(90deg, var(--accent3), var(--accent1));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        .field label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .field .hint {
+            display: block;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         textarea {
+            min-height: 90px;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: var(--muted);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent3);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+        }
+
+        button#btn {
             width: 100%;
-            height: 80px;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent3));
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 16px rgba(127, 90, 240, 0.4);
         }
 
-        button {
-            margin-top: 8px;
-            padding: 8px 16px;
+        button#btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(127, 90, 240, 0.55);
         }
 
-        #result {
-            margin-top: 16px;
-            white-space: pre-wrap;
-            background: #f4f4f4;
-            padding: 12px;
+        button#btn:active {
+            transform: translateY(0);
+        }
+
+        button#btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(14px);
+            line-height: 1.75;
+            font-size: 0.95rem;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result.hidden {
+            display: none;
+        }
+
+        .result h2, .result h3, .result h4 {
+            color: var(--accent3);
+            margin: 16px 0 8px;
+        }
+
+        .result h2:first-child, .result h3:first-child, .result h4:first-child {
+            margin-top: 0;
+        }
+
+        .result ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .result strong {
+            color: var(--accent2);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .history-section {
+            margin-top: 36px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .history-header h2 {
+            font-size: 1.1rem;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .ghost-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--muted);
+            padding: 6px 12px;
             border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .ghost-btn:hover {
+            border-color: var(--accent3);
+            color: var(--text);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-empty {
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        .history-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(14px);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .history-item-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-date {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .history-period {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent3);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s, color 0.15s, transform 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+        }
+
+        .history-content-summary {
+            margin: 8px 0 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-detail {
+            margin-top: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, margin-top 0.3s ease;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .history-item.open .history-detail {
+            margin-top: 12px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .history-item.open .toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        .result h2, .result h3, .result h4,
+        .history-detail h2, .history-detail h3, .history-detail h4 {
+            color: var(--accent3);
+            margin: 16px 0 8px;
+        }
+
+        .result h2:first-child, .result h3:first-child, .result h4:first-child,
+        .history-detail h2:first-child, .history-detail h3:first-child, .history-detail h4:first-child {
+            margin-top: 0;
+        }
+
+        .result ul, .history-detail ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .result strong, .history-detail strong {
+            color: var(--accent2);
         }
     </style>
 </head>
 
 <body>
-    <h1>AI学習プラン提案</h1>
-    <p>学びたいことと使える時間を入力してください。</p>
-    <textarea id="input" placeholder="例：3か月でWeb開発の基礎を学びたい。平日1時間使える。"></textarea>
-    <button id="btn">提案してもらう</button>
-    <div id="result"></div>
+    <div class="app">
+        <header>
+            <h1>🚀 AI学習プラン提案</h1>
+            <p class="subtitle">期間とやりたいことを伝えるだけで、あなた専用の学習プランを作成します。</p>
+        </header>
+
+        <div class="card">
+            <div class="field">
+                <label for="period">📅 学習期間</label>
+                <input type="text" id="period" placeholder="例：3か月、平日1時間・週末2時間">
+                <span class="hint">期間や1日あたりに使える時間を入力してください。</span>
+            </div>
+
+            <div class="field">
+                <label for="content">📚 学びたい内容</label>
+                <textarea id="content" placeholder="例：Web開発の基礎を学びたい。HTML/CSS/JavaScriptを触ったことはない。"></textarea>
+                <span class="hint">学びたいテーマや今のレベルを入力してください。</span>
+            </div>
+
+            <button id="btn">✨ 提案してもらう</button>
+        </div>
+
+        <div id="result" class="result hidden"></div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h2>📜 学習履歴</h2>
+                <button id="clearHistoryBtn" class="ghost-btn">すべて削除</button>
+            </div>
+            <div id="historyList" class="history-list"></div>
+        </div>
+    </div>
 
     <script>
-        const API_KEY = "APIキーを入力";
+        const API_KEY = "APIキーを入力する";
         const MODEL = "gemini-2.5-flash-lite";
+        const HISTORY_KEY = "studyPlanHistory";
 
         const btn = document.getElementById("btn");
         const result = document.getElementById("result");
+        const periodInput = document.getElementById("period");
+        const contentInput = document.getElementById("content");
+        const historyList = document.getElementById("historyList");
+        const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+        function showResult(html) {
+            result.classList.remove("hidden");
+            result.classList.add("show");
+            result.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function formatResult(text) {
+            let html = escapeHtml(text);
+
+            html = html.replace(/^### (.*)$/gm, "<h4>$1</h4>");
+            html = html.replace(/^## (.*)$/gm, "<h3>$1</h3>");
+            html = html.replace(/^# (.*)$/gm, "<h2>$1</h2>");
+            html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+            html = html.replace(/^[-*] (.*)$/gm, "<li>$1</li>");
+            html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
+            html = html.replace(/\n/g, "<br>");
+            return html;
+        }
+
+        function loadHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveHistory(history) {
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function addHistoryItem(period, content, resultText) {
+            const history = loadHistory();
+            history.unshift({
+                id: Date.now(),
+                period,
+                content,
+                resultText,
+                createdAt: new Date().toISOString(),
+            });
+            saveHistory(history);
+            renderHistory();
+        }
+
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString("ja-JP", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        }
+
+        function renderHistory() {
+            const history = loadHistory();
+
+            if (history.length === 0) {
+                historyList.innerHTML = `<p class="history-empty">まだ履歴はありません。学習プランを作成すると、ここに記録されます。</p>`;
+                return;
+            }
+
+            historyList.innerHTML = history
+                .map(
+                    (item) => `
+                <div class="history-item" data-id="${item.id}">
+                    <div class="history-item-header">
+                        <div class="history-item-meta">
+                            <span class="history-date">${formatDate(item.createdAt)}</span>
+                            <span class="history-period">📅 ${escapeHtml(item.period)}</span>
+                        </div>
+                        <div class="history-actions">
+                            <button class="icon-btn toggle-btn" title="開く/閉じる">▼</button>
+                            <button class="icon-btn delete-btn" title="削除">🗑</button>
+                        </div>
+                    </div>
+                    <p class="history-content-summary">${escapeHtml(item.content)}</p>
+                    <div class="history-detail">${formatResult(item.resultText)}</div>
+                </div>`
+                )
+                .join("");
+        }
+
+        historyList.addEventListener("click", (e) => {
+            const item = e.target.closest(".history-item");
+            if (!item) return;
+            const id = Number(item.dataset.id);
+
+            if (e.target.closest(".toggle-btn")) {
+                item.classList.toggle("open");
+            } else if (e.target.closest(".delete-btn")) {
+                const history = loadHistory().filter((h) => h.id !== id);
+                saveHistory(history);
+                renderHistory();
+            }
+        });
+
+        clearHistoryBtn.addEventListener("click", () => {
+            if (loadHistory().length === 0) return;
+            if (confirm("学習履歴をすべて削除しますか？この操作は取り消せません。")) {
+                saveHistory([]);
+                renderHistory();
+            }
+        });
 
         btn.addEventListener("click", async () => {
-            const userText = document.getElementById("input").value;
-            if (!userText) return;
-            result.textContent = "考え中...";
+            const period = periodInput.value.trim();
+            const content = contentInput.value.trim();
 
-            const prompt = `あなたは学習プランの専門家です。次の希望に合わせて、週単位の具体的な学習プランを提案してください。\n希望：${userText}`;
+            if (!period || !content) {
+                showResult("学習期間と学びたい内容の両方を入力してください。");
+                return;
+            }
+
+            btn.disabled = true;
+            showResult(`<span class="spinner"></span>考え中...`);
+
+            const prompt = `あなたは学習プランの専門家です。次の希望に合わせて、週単位の具体的な学習プランを提案してください。\n学習期間：${period}\n学びたい内容：${content}`;
 
             try {
                 const res = await fetch(
@@ -66,16 +559,22 @@
                 console.log(data);
 
                 if (data.error) {
-                    result.textContent = "APIエラー: " + data.error.message;
+                    showResult("APIエラー: " + data.error.message);
                     return;
                 }
 
-                result.textContent = data.candidates[0].content.parts[0].text;
+                const resultText = data.candidates[0].content.parts[0].text;
+                showResult(formatResult(resultText));
+                addHistoryItem(period, content, resultText);
             } catch (e) {
-                result.textContent = "エラー: " + e.message;
+                showResult("エラー: " + e.message);
                 console.log(e);
+            } finally {
+                btn.disabled = false;
             }
         });
+
+        renderHistory();
     </script>
 </body>
 
